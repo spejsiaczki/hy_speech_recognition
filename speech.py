@@ -216,24 +216,27 @@ class LanguageDetection:
 if __name__ == "__main__":
     logger.info("Starting video to audio pipeline")
 
-    input = "./data/HY_2024_film_17.mp4"
-    temp = "data_processed/output.wav"
+    for i in range(1, 21):
+        input = f"./data/HY_2024_film_{i:02}.mp4"
+        temp = "data_processed/output.wav"
+        print(input)
 
-    VideoToAudioPipeline(input, temp).run()
+        VideoToAudioPipeline(input, temp).run()
 
-    speach_processing = SpeechProcessingPipeline(temp).run()
-    print(speach_processing.results)
-    print(speach_processing.get_word_timestamps())
-    print(speach_processing.get_text())
-    print(speach_processing.get_pause_timestamps())
+        speach_processing = SpeechProcessingPipeline(temp).run()
+        # print(speach_processing.results)
+        # print(speach_processing.get_word_timestamps())
 
-    lang_detect = LanguageDetection()
-    for word in speach_processing.get_words():
-        print(word, lang_detect.detect_polish(word))
+        print("\033[31;1;4m" + speach_processing.get_text() + "\033[0m")
+        # print(speach_processing.get_pause_timestamps())
 
-    TEXT = """Mam ciągle w uszach głos, twój ciepły głos i oczy ciągle ciebie pełne mam, a już pod stopą moją dudni, dudni most; przez wiatr, przez mróz, przez słońce i przez zieleń maszeruję."""
+        # lang_detect = LanguageDetection()
+        # for word in speach_processing.get_words():
+        #     print(word, lang_detect.detect_polish(word))
 
-    gf = GunningFog(TEXT)
-    print(gf.score)
-    print(gf.grade_level)
-    print(gf.grade_level_pl)
+        # TEXT = """Mam ciągle w uszach głos, twój ciepły głos i oczy ciągle ciebie pełne mam, a już pod stopą moją dudni, dudni most; przez wiatr, przez mróz, przez słońce i przez zieleń maszeruję."""
+
+        # gf = GunningFog(TEXT)
+        # print(gf.score)
+        # print(gf.grade_level)
+        # print(gf.grade_level_pl)
