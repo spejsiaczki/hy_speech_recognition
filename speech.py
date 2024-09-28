@@ -101,6 +101,16 @@ class SpeechProcessingPipeline:
         return "".join(
             segment["text"] for segment in self.results["segments"])
 
+    def get_pause_timestamps(self) -> List[Tuple[float, float]]:
+        pauses = []
+        word_timestamps = self.get_word_timestamps()
+        for first, second in zip(word_timestamps, word_timestamps[1:]):
+            t_start = first[2]
+            t_end = second[1]
+            if t_end - t_start > 0.01:
+                pauses.append((t_start, t_end))
+        return pauses
+
 
 class GunningFog():
     def __init__(self, sample: str) -> None:
@@ -169,6 +179,7 @@ if __name__ == "__main__":
     print(speach_processing.results)
     print(speach_processing.get_word_timestamps())
     print(speach_processing.get_text())
+    print(speach_processing.get_pause_timestamps())
 
     TEXT = """Mam ciągle w uszach głos, twój ciepły głos i oczy ciągle ciebie pełne mam, a już pod stopą moją dudni, dudni most; przez wiatr, przez mróz, przez słońce i przez zieleń maszeruję."""
 
