@@ -175,24 +175,38 @@ class GunningFog():
 
 
 class LanguageDetection:
-    def __init__(self, text: str):
-        self.text = text
-        self.possible_languages = self._detect_language()
+    FILANAME_LANG_SET = "./words2.txt"
 
-    def _detect_language(self):
+    def __init__(self):
+        self.lang_set = self._load_lang_set()
+
+    def _norm_word(self, word: str) -> str:
+        return word.replace(",", "").replace(".", "").lower().strip()
+
+    def _load_lang_set(self):
+        with open(self.FILANAME_LANG_SET, "r") as f:
+            return set(self._norm_word(w) for w in f.read().splitlines())
+
+    def detect_polish(self, text: str) -> bool:
         """
         Returns a list of detected languages with confidence scores
         """
-        if any(ch in self.text for ch in "ęóąśłżźćń"):
-            return [("pl", 1.0)]
 
-        if len(self.text) < 5:
-            return []
+        word = self._norm_word(text)
+        if word in self.lang_set:
+            return True
+
+        if any(ch in text for ch in "ęóąśłżźćń"):
+            return True
 
         try:
-            return [(lang.lang, lang.prob) for lang in detect_langs(self.text)]
+            probs = [(lang.lang, lang.prob) for lang in detect_langs(text)]
+            if probs[0] == "pl":
+                return True
+            else:
+                return False
         except LangDetectException:
-            return []
+            return False
 
     @property
     def languages(self):
@@ -213,9 +227,9 @@ if __name__ == "__main__":
     print(speach_processing.get_text())
     print(speach_processing.get_pause_timestamps())
 
+    lang_detect = LanguageDetection()
     for word in speach_processing.get_words():
-        lang_detect = LanguageDetection(word)
-        print(word, lang_detect.languages)
+        print(word, lang_detect.detect_polish(word))
 
     TEXT = """Mam ciągle w uszach głos, twój ciepły głos i oczy ciągle ciebie pełne mam, a już pod stopą moją dudni, dudni most; przez wiatr, przez mróz, przez słońce i przez zieleń maszeruję."""
 
