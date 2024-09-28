@@ -129,22 +129,28 @@ class GunningFog():
     def grade_level_pl(self) -> str:
         score = self.score
         if 0 <= score < 7:
-            return "Wczesna szkoła podstawowa"
+            return "język bardzo prosty," \
+                "zrozumiały już dla uczniów szkoły podstawowej"
         elif 7 <= score < 10:
-            return "Późna szkoła podstawowa"
+            return "język prosty," \
+                " zrozumiały już dla uczniów gimnazjum"
         elif 10 <= score < 13:
-            return "Szkoła średnia"
+            return "język dość prosty," \
+                "zrozumiały już dla uczniów liceum"
         elif 13 <= score < 16:
-            return "Studia licencjackie"
+            return "język dość trudny, " \
+                "zrozumiały dla studentów studiów licencjackich"
         elif 16 <= score < 18:
-            return "Studia magisterskie"
+            return "język trudny, " \
+                "zrozumiały dla studentów studiów magisterskich"
         elif 18 <= score:
-            return "Doktorat"
+            return "język bardzo trudny, " \
+                "zrozumiały dla magistrów i osób z wyższym wykształceniem"
 
     def _multiply_sample(self, sample: str):
         """
-        Output sample must have more than 100 words.
-        """
+            Output sample must have more than 100 words.
+            """
         no_words = len(sample.split())
         no_words_expected = 100
         multiply = (no_words_expected // no_words + 1)
@@ -164,7 +170,9 @@ if __name__ == "__main__":
     print(speach_processing.get_word_timestamps())
     print(speach_processing.get_text())
 
-    gf = GunningFog(speach_processing.get_text())
+    TEXT = """Mam ciągle w uszach głos, twój ciepły głos i oczy ciągle ciebie pełne mam, a już pod stopą moją dudni, dudni most; przez wiatr, przez mróz, przez słońce i przez zieleń maszeruję."""
+
+    gf = GunningFog(TEXT)
     print(gf.score)
     print(gf.grade_level)
     print(gf.grade_level_pl)
