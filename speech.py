@@ -1,7 +1,9 @@
 import logging
 import ffmpeg
 import speech_recognition
+from readability import Readability
 from typing import List, Tuple
+import nltk
 
 
 logger = logging.getLogger(__name__)
@@ -57,6 +59,7 @@ class SpeechProcessingPipeline:
         self.audio = None
         self.results = None
         self.recognizer = speech_recognition.Recognizer()
+
         logger.debug(self.__class__.__name__ + " initialized")
 
     def run(self) -> "SpeechProcessingPipeline":
@@ -94,6 +97,59 @@ class SpeechProcessingPipeline:
                 timestamps.append((text, word["start"], word["end"]))
         return timestamps
 
+    def get_text(self) -> str:
+        return "".join(
+            segment["text"] for segment in self.results["segments"])
+
+
+class GunningFog():
+    def __init__(self, sample: str) -> None:
+        nltk.download('punkt_tab')
+        self._gf = None
+        self.run(sample)
+
+    def run(self, sample: str) -> None:
+        t = self._multiply_sample(sample)
+        r = Readability(t)
+        self._gf = r.gunning_fog()
+
+    @property
+    def score(self) -> float:
+        if not self._gf.score:
+            self.run()
+        return self._gf.score
+
+    @property
+    def grade_level(self) -> str:
+        if not self._gf.grade_level:
+            self.run()
+        return self._gf.grade_level
+
+    @property
+    def grade_level_pl(self) -> str:
+        score = self.score
+        if 0 <= score < 7:
+            return "Wczesna szkoła podstawowa"
+        elif 7 <= score < 10:
+            return "Późna szkoła podstawowa"
+        elif 10 <= score < 13:
+            return "Szkoła średnia"
+        elif 13 <= score < 16:
+            return "Studia licencjackie"
+        elif 16 <= score < 18:
+            return "Studia magisterskie"
+        elif 18 <= score:
+            return "Doktorat"
+
+    def _multiply_sample(self, sample: str):
+        """
+        Output sample must have more than 100 words.
+        """
+        no_words = len(sample.split())
+        no_words_expected = 100
+        multiply = (no_words_expected // no_words + 1)
+        return sample * multiply
+
 
 if __name__ == "__main__":
     logger.info("Starting video to audio pipeline")
@@ -106,3 +162,9 @@ if __name__ == "__main__":
     speach_processing = SpeechProcessingPipeline(temp).run()
     print(speach_processing.results)
     print(speach_processing.get_word_timestamps())
+    print(speach_processing.get_text())
+
+    gf = GunningFog(speach_processing.get_text())
+    print(gf.score)
+    print(gf.grade_level)
+    print(gf.grade_level_pl)
