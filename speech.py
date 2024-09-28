@@ -1,6 +1,7 @@
 import logging
 import ffmpeg
 import speech_recognition
+from typing import List, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -75,15 +76,23 @@ class SpeechProcessingPipeline:
             self.results = self.recognizer.recognize_whisper(
                 model="small",
                 audio_data=self.audio,
-                language="polish",
+                # language="polish",
                 word_timestamps=True,
-                show_dict=False,
+                show_dict=True,
                 prompt=SpeechProcessingPipeline.PROMPT,
             )
         except speech_recognition.UnknownValueError:
             print("could not understand audio")
         except speech_recognition.RequestError as e:
             print("error; {0}".format(e))
+
+    def get_word_timestamps(self) -> List[Tuple[str, float, float]]:
+        timestamps = []
+        for segment in self.results["segments"]:
+            for word in segment["words"]:
+                text = word["word"]
+                timestamps.append((text, word["start"], word["end"]))
+        return timestamps
 
 
 if __name__ == "__main__":
@@ -94,5 +103,6 @@ if __name__ == "__main__":
 
     VideoToAudioPipeline(input, temp).run()
 
-    result = SpeechProcessingPipeline(temp).run().results
-    print(result)
+    speach_processing = SpeechProcessingPipeline(temp).run()
+    print(speach_processing.results)
+    print(speach_processing.get_word_timestamps())
