@@ -36,7 +36,7 @@ class VideoToAudio:
                         ar=44100,
                         ) \
                 .overwrite_output() \
-                .run(quiet=False)
+                .run(quiet=True)
 
             logger.debug(
                 f"Audio extracted from {input_file}"
