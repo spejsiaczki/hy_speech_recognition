@@ -5,9 +5,11 @@ from gunning_fog import GunningFog
 from language_detection import LanguageDetection
 from speech_processing import SpeechProcessing
 from video_to_audio import VideoToAudio
+from ocr import OCR
 
 
 data_dir = pathlib.Path("./data")
+ocr = OCR()
 for filename in sorted(os.listdir(data_dir)):
     # Filename to process
     filename_abs = str((data_dir / filename).absolute())
@@ -17,6 +19,14 @@ for filename in sorted(os.listdir(data_dir)):
     temp_file = tempfile.NamedTemporaryFile(
         delete=False, dir='/tmp', suffix=".wav")
     temp_file_name = temp_file.name
+    print("--------------------------")
+
+    # Get subtitles
+
+    subtitles = ocr.ocr(filename_abs)
+    ocr_text = "".join(subtitles.values())
+    for time, content in subtitles.items():
+        print(f"[{time} s]: {content}")
     print("--------------------------")
 
     # Convert video to audio
